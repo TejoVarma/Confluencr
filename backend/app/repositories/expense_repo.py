@@ -2,6 +2,7 @@
 
 import datetime as dt
 from dataclasses import dataclass
+from collections.abc import Callable
 from typing import Any, Protocol
 
 from supabase import Client
@@ -30,8 +31,13 @@ class ExpenseRepository(Protocol):
 
 
 class SupabaseExpenseRepository:
-    def __init__(self, client: Client) -> None:
-        self.client = client
+    def __init__(self, client_factory: Callable[[], Client]) -> None:
+        # Resolved lazily so request validation (400) runs before any DB/config error.
+        self._client_factory = client_factory
+
+    @property
+    def client(self) -> Client:
+        return self._client_factory()
 
     def create(self, data: dict[str, Any]) -> dict[str, Any]:
         result = self.client.table(TABLE).insert(data).execute()

@@ -6,7 +6,7 @@ from app.services.expense_service import ExpenseService
 
 
 def get_expense_repository() -> ExpenseRepository:
-    return SupabaseExpenseRepository(get_supabase_client())
+    return SupabaseExpenseRepository(get_supabase_client)
 
 
 def get_expense_service(repo: ExpenseRepository = Depends(get_expense_repository)) -> ExpenseService:

@@ -87,3 +87,20 @@ def test_create_rejects_malformed_json(client):
 
     assert response.status_code == 400
     assert response.json() == {"error": "Request body must be valid JSON"}
+
+
+def test_validation_runs_before_database_config(monkeypatch):
+    """Bad input must be a 400 even when the database isn't configured."""
+    from fastapi.testclient import TestClient
+
+    from app.core.config import get_settings
+    from app.main import app
+
+    monkeypatch.setattr(get_settings(), "supabase_url", "")
+    with TestClient(app) as raw_client:
+        response = raw_client.post("/api/expenses", json={"title": "", "amount": 1, "category": "food"})
+        unconfigured = raw_client.get("/api/expenses")
+
+    assert response.status_code == 400
+    assert unconfigured.status_code == 503
+    assert unconfigured.json() == {"error": "Database is not configured"}
