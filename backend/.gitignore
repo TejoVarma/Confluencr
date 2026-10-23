@@ -5,3 +5,6 @@ __pycache__/
 .pytest_cache/
 dist/
 *.zip
+.coverage
+htmlcov/
+.ruff_cache/
