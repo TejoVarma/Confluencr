@@ -25,8 +25,14 @@ src/
 npm install
 npm run dev        # http://localhost:5173, /api proxied to http://localhost:8000
 npm test           # vitest
+npm run lint       # eslint
+npm run check      # lint + typecheck + tests (same as CI)
 npm run build      # typecheck + production build to dist/
 ```
+
+## CI
+
+`.github/workflows/frontend.yml` runs lint, typecheck, tests and build on every PR touching `frontend/`.
 
 ## Deploy (AWS Amplify)
 
