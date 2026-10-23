@@ -81,9 +81,7 @@ def test_create_requires_fields(client, field):
 
 
 def test_create_rejects_malformed_json(client):
-    response = client.post(
-        "/api/expenses", content="{not json", headers={"Content-Type": "application/json"}
-    )
+    response = client.post("/api/expenses", content="{not json", headers={"Content-Type": "application/json"})
 
     assert response.status_code == 400
     assert response.json() == {"error": "Request body must be valid JSON"}

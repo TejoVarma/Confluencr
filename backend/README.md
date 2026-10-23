@@ -15,8 +15,9 @@ app/
   services/expense_service.py  pagination, totals, monthly summary
   api/routes/expenses.py       HTTP layer
 sql/001_create_expenses.sql    table, indexes, RLS, aggregate functions
-tests/                         pytest, in-memory fake repo (no Supabase needed)
+tests/                         unit tests (fake repo) + tests/integration (live Supabase, opt-in)
 scripts/package.sh             builds the Beanstalk zip
+scripts/check.sh               lint + format + tests with coverage
 ```
 
 ## Setup
@@ -33,11 +34,20 @@ python3.12 -m venv .venv
 
 Docs: http://localhost:8000/api/docs
 
-## Tests
+## Tests and checks
 
 ```bash
-.venv/bin/pytest
+./scripts/check.sh                                 # ruff lint + format check + unit tests (coverage >= 90%)
+.venv/bin/pytest                                   # unit tests only (in-memory fake repo, no network)
+RUN_INTEGRATION=1 .venv/bin/pytest tests/integration   # live tests against Supabase from .env
 ```
+
+- `tests/test_*.py` cover every validation rule, filters, ordering, pagination, totals across pages,
+  404s, monthly summary, the `{"error"}` shape, and the Supabase query building (with a fake client).
+- `tests/integration/` hits the real database through the real app. Each run writes into a random empty
+  month between 1900 and 1989 and deletes what it created, so it never touches real data.
+- CI (`.github/workflows/backend.yml`) runs the checks on every PR touching `backend/`, runs the live
+  suite when `SUPABASE_URL`/`SUPABASE_KEY` repo secrets exist, and uploads the Beanstalk zip as an artifact.
 
 ## API
 
