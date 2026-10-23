@@ -1,8 +1,11 @@
-"""Data access for expenses. The service depends on the ExpenseRepository protocol so tests can swap in a fake."""
+"""Data access for expenses.
+
+The service depends on the ExpenseRepository protocol so tests can swap in a fake.
+"""
 
 import datetime as dt
-from dataclasses import dataclass
 from collections.abc import Callable
+from dataclasses import dataclass
 from typing import Any, Protocol
 
 from supabase import Client

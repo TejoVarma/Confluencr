@@ -1,0 +1,46 @@
+name: Backend
+
+on:
+  pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      # Optional repo secrets; the live Supabase step is skipped when they're absent.
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements*.txt
+      - run: pip install -r requirements-dev.txt
+      - name: Lint and unit tests (coverage >= 90%)
+        run: ./scripts/check.sh
+        env:
+          PYTHON: python
+      - name: Integration tests (live Supabase)
+        if: env.SUPABASE_URL != '' && env.SUPABASE_KEY != ''
+        run: python -m pytest tests/integration -v
+        env:
+          RUN_INTEGRATION: '1'
+      - name: Package Beanstalk zip
+        run: ./scripts/package.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: backend-zip
+          path: backend/dist/*.zip

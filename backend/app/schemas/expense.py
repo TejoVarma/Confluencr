@@ -1,4 +1,7 @@
-"""Request/response models. Validation rules here are mirrored in frontend/src/features/expenses/validation.ts."""
+"""Request/response models.
+
+Validation rules here are mirrored in frontend/src/features/expenses/validation.ts.
+"""
 
 import datetime as dt
 import re
@@ -126,7 +129,11 @@ class ExpenseListQuery(BaseModel):
     def validate_limit(cls, value: Any) -> int:
         if value in (None, ""):
             return DEFAULT_LIMIT
-        if not isinstance(value, str) or not _POSITIVE_INT_RE.match(value) or not 1 <= int(value) <= MAX_LIMIT:
+        if (
+            not isinstance(value, str)
+            or not _POSITIVE_INT_RE.match(value)
+            or not 1 <= int(value) <= MAX_LIMIT
+        ):
             raise ValueError(f"limit must be an integer between 1 and {MAX_LIMIT}")
         return int(value)
 
